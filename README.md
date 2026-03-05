@@ -1,5 +1,5 @@
 # LGPD-Compliance-Checklist
-
+![Banner](banner.svg)
 - Interactive web app for LGPD compliance assessment (Lei 13.709/2018)
 - 23 checklist items across 7 categories with LGPD article references
 - Weighted scoring system (High 3x / Medium 2x / Low 1x)
