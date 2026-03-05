@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist de Conformidade LGPD</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #0099cc;
+    --green: #00e676;
+    --yellow: #ffd740;
+    --red: #ff5252;
+    --text: #e8edf5;
+    --text-muted: #6b7fa3;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    margin-bottom: 48px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .header-tag {
+    display: inline-block;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid rgba(0,212,255,0.3);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #e8edf5 0%, #00d4ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 15px;
+    font-weight: 300;
+    max-width: 560px;
+  }
+
+  /* Score card */
+  .score-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 36px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: center;
+    animation: fadeUp 0.6s 0.1s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .score-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+
+  .score-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .progress-bar-wrap {
+    background: var(--surface2);
+    border-radius: 99px;
+    height: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1), background 0.5s;
+    background: var(--green);
+  }
+
+  .progress-stats {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .score-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1;
+    text-align: right;
+    transition: color 0.5s;
+  }
+
+  .score-pct {
+    font-size: 20px;
+    font-weight: 400;
+    vertical-align: super;
+  }
+
+  .score-badge {
+    font-size: 12px;
+    font-weight: 500;
+    text-align: right;
+    margin-top: 4px;
+    transition: color 0.5s;
+  }
+
+  /* Category */
+  .category {
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .category-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .category-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    flex: 1;
+  }
+
+  .category-progress {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .category-chevron {
+    color: var(--text-muted);
+    transition: transform 0.3s;
+    font-size: 12px;
+  }
+
+  .category-chevron.open { transform: rotate(180deg); }
+
+  .category-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* Item */
+  .item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .item:hover { border-color: rgba(0,212,255,0.2); }
+  .item.compliant { border-color: rgba(0,230,118,0.2); background: rgba(0,230,118,0.03); }
+  .item.non-compliant { border-color: rgba(255,82,82,0.2); background: rgba(255,82,82,0.03); }
+
+  .item-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .item-content { flex: 1; }
+
+  .item-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+
+  .item-article {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .item-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .item-recommendation {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: rgba(255,82,82,0.08);
+    border-left: 3px solid var(--red);
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    color: #ff8a80;
+    display: none;
+  }
+
+  .item.non-compliant .item-recommendation { display: block; }
+
+  .article-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .article-btn:hover .item-article {
+    background: rgba(0,212,255,0.2);
+    border-color: var(--accent);
+  }
+
+  .article-expand {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .article-expand.open { max-height: 200px; }
+
+  .article-description {
+    margin-top: 10px;
+    padding: 12px 14px;
+    background: rgba(0,212,255,0.05);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    color: #a0c4d8;
+    line-height: 1.6;
+  }
+
+  .article-description strong {
+    display: block;
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  /* Toggle */
+  .toggle-group {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .toggle-btn {
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .toggle-btn:hover { border-color: var(--text-muted); color: var(--text); }
+  .toggle-btn.yes.active { background: rgba(0,230,118,0.15); border-color: var(--green); color: var(--green); }
+  .toggle-btn.no.active { background: rgba(255,82,82,0.15); border-color: var(--red); color: var(--red); }
+
+  /* Actions */
+  .actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0a0e1a;
+  }
+  .btn-primary:hover { background: #33ddff; transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--text-muted); transform: translateY(-1px); }
+
+  /* Footer */
+  footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .score-card { grid-template-columns: 1fr; }
+    .score-number { text-align: left; font-size: 40px; }
+    .score-badge { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="header-tag">Lei nº 13.709/2018</div>
+    <h1>Checklist de Conformidade LGPD</h1>
+    <p class="subtitle">Avalie o nível de conformidade da sua empresa com a Lei Geral de Proteção de Dados. Responda cada item e acompanhe seu progresso em tempo real.</p>
+  </header>
+
+  <div class="score-card">
+    <div>
+      <div class="score-label">Pontuação de Conformidade</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar" style="width:0%"></div>
+      </div>
+      <div class="progress-stats" id="progressStats">0 de 0 itens respondidos</div>
+    </div>
+    <div>
+      <div class="score-number" id="scoreNumber"><span class="score-pct"></span>—</div>
+      <div class="score-badge" id="scoreBadge">Aguardando respostas</div>
+    </div>
+  </div>
+
+  <div id="checklist"></div>
+
+  <div class="actions">
+    <button class="btn btn-primary" onclick="exportPDF()">⬇ Exportar Relatório PDF</button>
+    <button class="btn btn-secondary" onclick="resetAll()">↺ Reiniciar Checklist</button>
+  </div>
+
+  <footer>
+    Checklist baseado na Lei Geral de Proteção de Dados Pessoais — LGPD (Lei nº 13.709/2018) e diretrizes da ANPD.<br>
+    Este documento não substitui consultoria jurídica especializada.
+  </footer>
+</div>
+
+<script>
+const data = [
+  {
+    id: 'bases-legais',
+    title: 'Bases Legais para Tratamento de Dados',
+    icon: '⚖️',
+    color: '#7c3aed',
+    items: [
+      { id: 'bl1', article: 'Art. 7º', articleDesc: 'Define as dez hipóteses legais que autorizam o tratamento de dados pessoais, como consentimento do titular, cumprimento de obrigação legal, execução de contrato, legítimo interesse, entre outras.', text: 'A empresa identifica e documenta a base legal para cada atividade de tratamento de dados pessoais.', rec: 'Mapeie todas as atividades de tratamento e associe a base legal correspondente (consentimento, obrigação legal, legítimo interesse, etc.).' },
+      { id: 'bl2', article: 'Art. 8º', articleDesc: 'Estabelece os requisitos para que o consentimento seja válido: deve ser fornecido por escrito ou por outro meio que demonstre a manifestação de vontade do titular, de forma livre, informada e inequívoca.', text: 'O consentimento obtido dos titulares é livre, informado, inequívoco e registrado de forma adequada.', rec: 'Revise seus formulários de coleta de dados e implemente mecanismos de registro de consentimento com data e versão da política.' },
+      { id: 'bl3', article: 'Art. 11º', articleDesc: 'Trata especificamente do tratamento de dados pessoais sensíveis (origem racial, convicção religiosa, saúde, biometria, etc.), exigindo consentimento específico e destacado ou outras bases legais mais restritas.', text: 'Dados sensíveis (saúde, biometria, origem racial, etc.) possuem base legal específica e reforçada.', rec: 'Realize um inventário de dados sensíveis e implemente controles adicionais de acesso e tratamento.' },
+      { id: 'bl4', article: 'Art. 9º', articleDesc: 'Garante ao titular o direito de acesso facilitado às informações sobre o tratamento de seus dados, que devem ser disponibilizadas de forma clara, adequada e ostensiva, incluindo finalidade, duração e identificação do controlador.', text: 'O titular é informado de forma clara e transparente sobre o tratamento de seus dados antes ou no momento da coleta.', rec: 'Atualize avisos de privacidade e políticas para linguagem clara, acessível e com informações completas sobre o tratamento.' },
+    ]
+  },
+  {
+    id: 'direitos',
+    title: 'Direitos dos Titulares',
+    icon: '👤',
+    color: '#0891b2',
+    items: [
+      { id: 'dt1', article: 'Art. 18º', articleDesc: 'Lista os direitos dos titulares: confirmação de tratamento, acesso, correção, anonimização ou exclusão, portabilidade, informação sobre compartilhamento, revogação do consentimento e oposição ao tratamento.', text: 'Existe um canal formal para que titulares exerçam seus direitos (acesso, correção, exclusão, portabilidade, etc.).', rec: 'Implemente um canal dedicado (e-mail, formulário ou portal) para solicitações de titulares com prazo de resposta definido (máx. 15 dias).' },
+      { id: 'dt2', article: 'Art. 18º', articleDesc: 'Lista os direitos dos titulares: confirmação de tratamento, acesso, correção, anonimização ou exclusão, portabilidade, informação sobre compartilhamento, revogação do consentimento e oposição ao tratamento.', text: 'As solicitações de titulares são respondidas dentro do prazo razoável e documentadas.', rec: 'Crie um processo interno com fluxo de aprovação e registro de todas as solicitações recebidas e respondidas.' },
+      { id: 'dt3', article: 'Art. 18º, VI', articleDesc: 'Assegura ao titular o direito de solicitar a anonimização, bloqueio ou eliminação de dados desnecessários, excessivos ou tratados em desconformidade com a LGPD.', text: 'A empresa possui processo para exclusão ou anonimização de dados a pedido do titular.', rec: 'Documente o processo técnico de exclusão e anonimização de dados em todos os sistemas onde os dados são armazenados.' },
+      { id: 'dt4', article: 'Art. 20º', articleDesc: 'Garante ao titular o direito de solicitar revisão de decisões tomadas unicamente com base em tratamento automatizado de dados pessoais que afetem seus interesses, incluindo decisões de perfil profissional, crédito, saúde ou comportamento.', text: 'A empresa informa os titulares quando decisões automatizadas afetam seus interesses.', rec: 'Mapeie processos de decisão automatizada (scoring, filtragem, etc.) e garanta transparência e possibilidade de revisão humana.' },
+    ]
+  },
+  {
+    id: 'seguranca',
+    title: 'Segurança da Informação',
+    icon: '🔒',
+    color: '#059669',
+    items: [
+      { id: 'si1', article: 'Art. 46º', articleDesc: 'Obriga os agentes de tratamento a adotar medidas de segurança, técnicas e administrativas, para proteger os dados pessoais de acessos não autorizados e de situações acidentais ou ilícitas de destruição, perda, alteração, comunicação ou difusão.', text: 'Medidas técnicas e administrativas de segurança estão implementadas para proteger dados pessoais.', rec: 'Implemente controles como criptografia, controle de acesso baseado em função (RBAC), autenticação multifator e monitoramento contínuo.' },
+      { id: 'si2', article: 'Art. 46º', articleDesc: 'Obriga os agentes de tratamento a adotar medidas de segurança, técnicas e administrativas, para proteger os dados pessoais de acessos não autorizados e de situações acidentais ou ilícitas de destruição, perda, alteração, comunicação ou difusão.', text: 'Existe uma política de segurança da informação formalmente documentada e comunicada aos colaboradores.', rec: 'Elabore e publique uma Política de Segurança da Informação com revisões periódicas e treinamento obrigatório.' },
+      { id: 'si3', article: 'Art. 46º', articleDesc: 'Obriga os agentes de tratamento a adotar medidas de segurança, técnicas e administrativas, para proteger os dados pessoais de acessos não autorizados e de situações acidentais ou ilícitas de destruição, perda, alteração, comunicação ou difusão.', text: 'Os acessos a dados pessoais são controlados, registrados e revisados periodicamente.', rec: 'Implemente logs de acesso, revisões trimestrais de privilégios e o princípio do menor privilégio para todos os sistemas com dados pessoais.' },
+      { id: 'si4', article: 'Art. 46º', articleDesc: 'Obriga os agentes de tratamento a adotar medidas de segurança, técnicas e administrativas, para proteger os dados pessoais de acessos não autorizados e de situações acidentais ou ilícitas de destruição, perda, alteração, comunicação ou difusão.', text: 'Há um processo de gestão de vulnerabilidades e atualização de sistemas que tratam dados pessoais.', rec: 'Estabeleça um ciclo de patch management com SLAs definidos por criticidade e realizando varreduras periódicas de vulnerabilidades.' },
+      { id: 'si5', article: 'Art. 48º', articleDesc: 'Determina que o controlador deve comunicar à ANPD e ao titular a ocorrência de incidente de segurança que possa acarretar risco ou dano relevante aos titulares, em prazo razoável (definido pela ANPD como 2 dias úteis).', text: 'Existe plano de resposta a incidentes de segurança envolvendo dados pessoais.', rec: 'Desenvolva e teste regularmente um Plano de Resposta a Incidentes que contemple notificação à ANPD em até 2 dias úteis.' },
+    ]
+  },
+  {
+    id: 'dpo',
+    title: 'Encarregado de Dados (DPO)',
+    icon: '🧑‍💼',
+    color: '#d97706',
+    items: [
+      { id: 'dpo1', article: 'Art. 41º', articleDesc: 'Determina que o controlador deve indicar um encarregado pelo tratamento de dados pessoais, que atuará como canal de comunicação entre o controlador, os titulares e a ANPD.', text: 'A empresa designou formalmente um Encarregado de Proteção de Dados (DPO).', rec: 'Nomeie um DPO interno ou externo e publique seu contato no site e na política de privacidade da empresa.' },
+      { id: 'dpo2', article: 'Art. 41º, §1º', articleDesc: 'Exige que a identidade e o contato do encarregado sejam divulgados publicamente, de forma clara e objetiva, preferencialmente no site do controlador.', text: 'A identidade e o contato do DPO são divulgados publicamente de forma clara.', rec: 'Adicione o contato do DPO ao rodapé do site, aviso de privacidade e demais canais de comunicação com titulares.' },
+      { id: 'dpo3', article: 'Art. 41º, §2º', articleDesc: 'Estabelece as atividades do encarregado: aceitar reclamações dos titulares, prestar esclarecimentos, receber comunicações da ANPD, orientar os funcionários e executar as demais atribuições determinadas pelo controlador ou em normas complementares.', text: 'O DPO recebe treinamento adequado e possui recursos para exercer suas funções.', rec: 'Garanta orçamento para certificações, treinamentos e ferramentas adequadas ao DPO.' },
+    ]
+  },
+  {
+    id: 'transferencia',
+    title: 'Transferência Internacional de Dados',
+    icon: '🌐',
+    color: '#7c3aed',
+    items: [
+      { id: 'ti1', article: 'Art. 33º', articleDesc: 'Estabelece as hipóteses em que a transferência internacional de dados pessoais é permitida, como para países com nível adequado de proteção reconhecido pela ANPD, mediante cláusulas contratuais específicas, normas corporativas globais, entre outros.', text: 'A empresa identificou todos os fluxos de transferência internacional de dados pessoais.', rec: 'Mapeie todos os fornecedores e sistemas que recebem ou processam dados pessoais fora do Brasil.' },
+      { id: 'ti2', article: 'Art. 33º', articleDesc: 'Estabelece as hipóteses em que a transferência internacional de dados pessoais é permitida, como para países com nível adequado de proteção reconhecido pela ANPD, mediante cláusulas contratuais específicas, normas corporativas globais, entre outros.', text: 'As transferências internacionais possuem mecanismo legal adequado (país adequado, cláusulas padrão, consentimento específico, etc.).', rec: 'Para cada transferência internacional, formalize o mecanismo legal adequado conforme as hipóteses do Art. 33 da LGPD.' },
+    ]
+  },
+  {
+    id: 'ripd',
+    title: 'Relatório de Impacto (RIPD)',
+    icon: '📋',
+    color: '#0891b2',
+    items: [
+      { id: 'ri1', article: 'Art. 38º', articleDesc: 'Autoriza a ANPD a solicitar ao controlador um relatório de impacto à proteção de dados pessoais, especialmente quando o tratamento tiver como fundamento o legítimo interesse ou envolver dados sensíveis, decisões automatizadas ou vigilância em larga escala.', text: 'A empresa realiza Relatórios de Impacto à Proteção de Dados (RIPD) para tratamentos de alto risco.', rec: 'Identifique atividades de alto risco (vigilância, perfilamento, dados sensíveis em massa) e elabore RIPDs com avaliação de necessidade e proporcionalidade.' },
+      { id: 'ri2', article: 'Art. 38º', articleDesc: 'Autoriza a ANPD a solicitar ao controlador um relatório de impacto à proteção de dados pessoais, especialmente quando o tratamento tiver como fundamento o legítimo interesse ou envolver dados sensíveis, decisões automatizadas ou vigilância em larga escala.', text: 'Os RIPDs são revisados periodicamente ou quando há mudanças nos processos de tratamento.', rec: 'Estabeleça um calendário de revisão anual e um processo de gatilho para revisão a cada mudança relevante no tratamento.' },
+    ]
+  },
+  {
+    id: 'incidentes',
+    title: 'Resposta a Incidentes',
+    icon: '🚨',
+    color: '#dc2626',
+    items: [
+      { id: 'in1', article: 'Art. 48º', articleDesc: 'Determina que o controlador deve comunicar à ANPD e ao titular a ocorrência de incidente de segurança que possa acarretar risco ou dano relevante aos titulares, em prazo razoável. A comunicação deve mencionar a natureza dos dados, os titulares afetados, as medidas técnicas adotadas e os riscos relacionados.', text: 'Existe um processo formal para detecção, registro e classificação de incidentes com dados pessoais.', rec: 'Implemente procedimentos de detecção com ferramentas de monitoramento e um formulário padrão de registro de incidentes.' },
+      { id: 'in2', article: 'Art. 48º', articleDesc: 'Determina que o controlador deve comunicar à ANPD e ao titular a ocorrência de incidente de segurança que possa acarretar risco ou dano relevante aos titulares, em prazo razoável. A comunicação deve mencionar a natureza dos dados, os titulares afetados, as medidas técnicas adotadas e os riscos relacionados.', text: 'A empresa sabe como e quando notificar a ANPD e os titulares em caso de incidente.', rec: 'Documente o fluxo de notificação à ANPD (prazo: 2 dias úteis do conhecimento) e o modelo de comunicação aos titulares afetados.' },
+      { id: 'in3', article: 'Art. 48º', articleDesc: 'Determina que o controlador deve comunicar à ANPD e ao titular a ocorrência de incidente de segurança que possa acarretar risco ou dano relevante aos titulares, em prazo razoável. A comunicação deve mencionar a natureza dos dados, os titulares afetados, as medidas técnicas adotadas e os riscos relacionados.', text: 'Incidentes passados foram documentados com análise de causa raiz e lições aprendidas.', rec: 'Crie um registro de incidentes com causa raiz, impacto, medidas corretivas adotadas e revisão periódica.' },
+    ]
+  }
+];
+
+const state = {};
+
+function getScore() {
+  let total = 0, compliant = 0, answered = 0;
+  data.forEach(cat => cat.items.forEach(item => {
+    total++;
+    if (state[item.id] !== undefined) { answered++; if (state[item.id]) compliant++; }
+  }));
+  return { total, compliant, answered, pct: answered ? Math.round((compliant / answered) * 100) : 0, overall: total ? Math.round((compliant / total) * 100) : 0 };
+}
+
+function updateScore() {
+  const s = getScore();
+  const bar = document.getElementById('progressBar');
+  const num = document.getElementById('scoreNumber');
+  const badge = document.getElementById('scoreBadge');
+  const stats = document.getElementById('progressStats');
+
+  const pct = s.overall;
+  bar.style.width = pct + '%';
+  bar.style.background = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+  num.innerHTML = `<span class="score-pct">%</span>${pct}`;
+  num.style.color = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+  stats.textContent = `${s.answered} de ${s.total} itens respondidos — ${s.compliant} conformes`;
+
+  if (s.answered === 0) { badge.textContent = 'Aguardando respostas'; badge.style.color = 'var(--text-muted)'; }
+  else if (pct >= 80) { badge.textContent = '✓ Alta Conformidade'; badge.style.color = 'var(--green)'; }
+  else if (pct >= 50) { badge.textContent = '⚠ Conformidade Parcial'; badge.style.color = 'var(--yellow)'; }
+  else { badge.textContent = '✗ Baixa Conformidade'; badge.style.color = 'var(--red)'; }
+
+  // Update category progress
+  data.forEach(cat => {
+    let catTotal = cat.items.length, catCompliant = 0;
+    cat.items.forEach(item => { if (state[item.id]) catCompliant++; });
+    const el = document.getElementById(`cat-progress-${cat.id}`);
+    if (el) el.textContent = `${catCompliant}/${catTotal}`;
+  });
+}
+
+function setItem(id, value) {
+  state[id] = value;
+  const el = document.getElementById(`item-${id}`);
+  el.classList.toggle('compliant', value);
+  el.classList.toggle('non-compliant', !value);
+  document.getElementById(`btn-yes-${id}`).classList.toggle('active', value);
+  document.getElementById(`btn-no-${id}`).classList.toggle('active', !value);
+  updateScore();
+}
+
+function toggleCategory(id) {
+  const items = document.getElementById(`items-${id}`);
+  const chevron = document.getElementById(`chevron-${id}`);
+  const isOpen = items.style.maxHeight && items.style.maxHeight !== '0px';
+  items.style.maxHeight = isOpen ? '0px' : items.scrollHeight + 'px';
+  chevron.classList.toggle('open', !isOpen);
+}
+
+function resetAll() {
+  Object.keys(state).forEach(k => delete state[k]);
+  document.querySelectorAll('.item').forEach(el => { el.classList.remove('compliant','non-compliant'); });
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  updateScore();
+}
+
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const s = getScore();
+  let y = 20;
+
+  doc.setFillColor(10, 14, 26);
+  doc.rect(0, 0, 210, 297, 'F');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(0, 212, 255);
+  doc.text('Relatório de Conformidade LGPD', 20, y); y += 10;
+
+  doc.setFontSize(10);
+  doc.setTextColor(107, 127, 163);
+  doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`, 20, y); y += 14;
+
+  doc.setFillColor(17, 24, 39);
+  doc.roundedRect(20, y, 170, 22, 3, 3, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.setTextColor(232, 237, 245);
+  doc.text(`Pontuação Geral: ${s.overall}%`, 30, y + 9);
+  doc.setFontSize(10);
+  doc.setTextColor(107, 127, 163);
+  doc.text(`${s.compliant} conformes / ${s.answered} respondidos / ${s.total} total`, 30, y + 16);
+  y += 30;
+
+  data.forEach(cat => {
+    if (y > 260) { doc.addPage(); doc.setFillColor(10,14,26); doc.rect(0,0,210,297,'F'); y = 20; }
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(0, 212, 255);
+    doc.text(cat.title, 20, y); y += 8;
+
+    cat.items.forEach(item => {
+      if (y > 265) { doc.addPage(); doc.setFillColor(10,14,26); doc.rect(0,0,210,297,'F'); y = 20; }
+      const status = state[item.id];
+      const statusText = status === true ? '[CONFORME]' : status === false ? '[NÃO CONFORME]' : '[NÃO RESPONDIDO]';
+      const color = status === true ? [0,230,118] : status === false ? [255,82,82] : [107,127,163];
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(...color);
+      doc.text(statusText, 20, y);
+      doc.setTextColor(107,127,163);
+      doc.text(item.article, 65, y);
+      doc.setTextColor(232,237,245);
+      const lines = doc.splitTextToSize(item.text, 130);
+      doc.text(lines, 80, y);
+      y += lines.length * 5 + 2;
+
+      if (status === false) {
+        doc.setTextColor(255,138,128);
+        doc.setFontSize(8);
+        const recLines = doc.splitTextToSize('↳ ' + item.rec, 160);
+        doc.text(recLines, 25, y);
+        y += recLines.length * 4 + 3;
+      }
+      y += 2;
+    });
+    y += 6;
+  });
+
+  doc.save('relatorio-lgpd.pdf');
+}
+
+// Render
+function toggleArticle(id) {
+  const el = document.getElementById(`article-expand-${id}`);
+  el.classList.toggle('open');
+}
+
+function render() {
+  const container = document.getElementById('checklist');
+  container.innerHTML = data.map((cat, ci) => `
+    <div class="category" style="animation-delay: ${0.1 + ci * 0.05}s">
+      <div class="category-header" onclick="toggleCategory('${cat.id}')">
+        <div class="category-icon" style="background: ${cat.color}22; color: ${cat.color}">${cat.icon}</div>
+        <div class="category-title">${cat.title}</div>
+        <div class="category-progress" id="cat-progress-${cat.id}">0/${cat.items.length}</div>
+        <div class="category-chevron open" id="chevron-${cat.id}">▼</div>
+      </div>
+      <div class="category-items" id="items-${cat.id}" style="max-height: 2000px">
+        ${cat.items.map(item => `
+          <div class="item" id="item-${item.id}">
+            <div class="item-top">
+              <div class="item-content">
+                <div class="item-meta">
+                  <button class="article-btn" onclick="toggleArticle('${item.id}')" title="Ver descrição do artigo">
+                    <span class="item-article">${item.article} ℹ</span>
+                  </button>
+                </div>
+                <div class="item-text">${item.text}</div>
+                <div class="article-expand" id="article-expand-${item.id}">
+                  <div class="article-description">
+                    <strong>Sobre este artigo</strong>
+                    ${item.articleDesc}
+                  </div>
+                </div>
+                <div class="item-recommendation">${item.rec}</div>
+              </div>
+              <div class="toggle-group">
+                <button class="toggle-btn yes" id="btn-yes-${item.id}" onclick="setItem('${item.id}', true)">Sim</button>
+                <button class="toggle-btn no" id="btn-no-${item.id}" onclick="setItem('${item.id}', false)">Não</button>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  updateScore();
+}
+
+render();
+</script>
+</body>
+</html>
